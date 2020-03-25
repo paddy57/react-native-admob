@@ -1,25 +1,58 @@
 {
-  "name": "react-native-admob",
-  "version": "2.0.0-beta.6",
-  "description": "A react-native component for Google AdMob banners and interstitials",
-  "author": "Simon Bugert <simon.bugert@gmail.com>",
-  "main": "index.js",
-  "license": "BSD-2-Clause",
-  "repository": {
+  "_args": [
+    [
+      "github:MorganTrudeau/react-native-admob#feature/native-ads",
+      "/Users/pradnyanandpohare/Desktop/Webspdy/stumbler-mobile-app"
+    ]
+  ],
+  "_from": "github:MorganTrudeau/react-native-admob#feature/native-ads",
+  "_id": "react-native-admob@github:MorganTrudeau/react-native-admob#49d87fe5e2363f2920da4fd18b441d7981b0b487",
+  "_inBundle": false,
+  "_integrity": "",
+  "_location": "/react-native-admob",
+  "_phantomChildren": {},
+  "_requested": {
     "type": "git",
-    "url": "git@github.com:sbugert/react-native-admob.git"
+    "raw": "github:MorganTrudeau/react-native-admob#feature/native-ads",
+    "rawSpec": "github:MorganTrudeau/react-native-admob#feature/native-ads",
+    "saveSpec": "github:MorganTrudeau/react-native-admob#feature/native-ads",
+    "fetchSpec": null,
+    "gitCommittish": "feature/native-ads"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "github:MorganTrudeau/react-native-admob#49d87fe5e2363f2920da4fd18b441d7981b0b487",
+  "_spec": "github:MorganTrudeau/react-native-admob#feature/native-ads",
+  "_where": "/Users/pradnyanandpohare/Desktop/Webspdy/stumbler-mobile-app",
+  "author": {
+    "name": "Simon Bugert",
+    "email": "simon.bugert@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/sbugert/react-native-admob/issues"
   },
   "dependencies": {
     "prop-types": "^15.7.2"
   },
-  "peerDependencies": {
-    "react-native": ">=0.44.0"
-  },
+  "description": "A react-native component for Google AdMob banners and interstitials",
   "devDependencies": {
     "babel-eslint": "^7.2.3",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^6.3.0",
     "eslint-plugin-react": "^7.14.3",
     "prettier": "^1.18.2"
-  }
+  },
+  "homepage": "https://github.com/sbugert/react-native-admob#readme",
+  "license": "BSD-2-Clause",
+  "main": "index.js",
+  "name": "react-native-admob",
+  "peerDependencies": {
+    "react-native": ">=0.44.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sbugert/react-native-admob.git"
+  },
+  "version": "2.0.0-beta.6"
 }
