@@ -159,25 +159,26 @@
                         android:layout_alignParentTop="true"
                         android:orientation="horizontal">
 
-                        <ImageView
+                        <de.hdodenhof.circleimageview.CircleImageView
                             android:id="@+id/icon"
                             android:layout_width="70dp"
                             android:layout_height="60dp"
                             android:layout_gravity="center"
-                            android:layout_margin="10dp"
-                            android:background="#262626" />
+
+                           />
+
 
 
                         <TextView
-                            android:gravity="center"
                             android:id="@+id/primary"
                             android:layout_width="180dp"
                             android:layout_height="match_parent"
-                            android:layout_marginRight="10dp"
+                            android:layout_gravity="center"
                             android:layout_marginTop="10dp"
+                            android:layout_marginRight="10dp"
                             android:layout_marginBottom="10dp"
                             android:background="#262626"
-                            android:layout_gravity="center"
+                            android:gravity="center"
                             android:text="Native ads Headline"
                             android:textColor="@color/gnt_gray"
                             android:textSize="14sp"
