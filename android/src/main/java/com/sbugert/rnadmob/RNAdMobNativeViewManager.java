@@ -2,6 +2,7 @@ package com.sbugert.rnadmob;
 
 import android.content.Context;
 import android.graphics.Color;
+
 import androidx.annotation.Nullable;
 
 import android.util.Log;
@@ -10,7 +11,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Button;
 
@@ -52,13 +52,11 @@ class ReactNativeView extends ReactViewGroup {
     String adSize = "small";
     UnifiedNativeAdView nativeAdView;
 
-    private LinearLayout primaryParentView;
+
     private TextView primaryView;
-    private LinearLayout secondaryParentView;
     private TextView secondaryView;
-    private LinearLayout tertiaryParentView;
-    private RatingBar ratingBar;
-    private TextView tertiaryView;
+    private LinearLayout buttonLayout;
+
     private ImageView iconView;
     private MediaView mediaView;
     private LinearLayout callToActionParentView;
@@ -81,7 +79,7 @@ class ReactNativeView extends ReactViewGroup {
                 sendEvent(RNAdMobNativeViewManager.EVENT_AD_LOADED, null);
                 Log.d("NativeAD adload", "native ad");
                 populateUnifiedNativeAdView(unifiedNativeAd, nativeAdView);
-                 if (nativeAdView == null) return; // ADD THIS LINE HERE
+                if (nativeAdView == null) return; // ADD THIS LINE HERE
                 //calculate ad size and layout
                 nativeAdView.measure(MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY),
                         MeasureSpec.makeMeasureSpec(getMeasuredHeight(), MeasureSpec.EXACTLY));
@@ -111,7 +109,7 @@ class ReactNativeView extends ReactViewGroup {
                         }
                         WritableMap event = Arguments.createMap();
                         WritableMap error = Arguments.createMap();
-                        Log.d("NativeAD ERROR",errorMessage);
+                        Log.d("NativeAD ERROR", errorMessage);
                         error.putString("message", errorMessage);
                         event.putMap("error", error);
                         sendEvent(RNAdMobNativeViewManager.EVENT_AD_FAILED_TO_LOAD, event);
@@ -141,19 +139,8 @@ class ReactNativeView extends ReactViewGroup {
         }).build();
 
         adLoader.loadAd(new PublisherAdRequest.Builder().build());
-
-        int template;
-
-        if(adSize.equals("medium")) {
-            Log.d("NativeAD ADUNIT","medium");
-            template = R.layout.medium_template;
-        } else {
-            Log.d("NativeAD ADUNIT","small");
-            template = R.layout.small_template;
-        }
-
         LayoutInflater inflater = LayoutInflater.from(context);
-        this.nativeAdView = (UnifiedNativeAdView) inflater.inflate(template, null);
+        this.nativeAdView = (UnifiedNativeAdView) inflater.inflate(R.layout.medium_template, null);
         this.addView(nativeAdView);
 
     }
@@ -185,30 +172,25 @@ class ReactNativeView extends ReactViewGroup {
      * {@link UnifiedNativeAd}.
      *
      * @param nativeAd the object containing the ad's assets
-     * @param adView          the view to be populated
+     * @param adView   the view to be populated
      */
     private void populateUnifiedNativeAdView(UnifiedNativeAd nativeAd, UnifiedNativeAdView adView) {
         nativeAdView = (UnifiedNativeAdView) findViewById(R.id.native_ad_view);
         primaryView = (TextView) findViewById(R.id.primary);
         secondaryView = (TextView) findViewById(R.id.secondary);
-        secondaryParentView = (LinearLayout) findViewById(R.id.body);
-        ratingBar = (RatingBar) findViewById(R.id.rating_bar);
-        //add this
-        if (ratingBar != null) {
-            ratingBar.setEnabled(false);
-        }
 
-        tertiaryView = (TextView) findViewById(R.id.tertiary);
-        tertiaryParentView = (LinearLayout) findViewById(R.id.third_line);
         callToActionView = (Button) findViewById(R.id.cta);
         iconView = (ImageView) findViewById(R.id.icon);
         mediaView = (MediaView) findViewById(R.id.media_view);
-        primaryParentView = (LinearLayout) findViewById(R.id.headline);
+
         callToActionParentView = (LinearLayout) findViewById(R.id.cta_parent);
+        buttonLayout = (LinearLayout) findViewById(R.id.buttonLayout);
         background = (LinearLayout) findViewById(R.id.background);
 
         //add this
-        if (nativeAdView == null) {return;}
+        if (nativeAdView == null) {
+            return;
+        }
 
         String store = nativeAd.getStore();
         String advertiser = nativeAd.getAdvertiser();
@@ -220,67 +202,59 @@ class ReactNativeView extends ReactViewGroup {
 
 //           Log.d("NativeAD responseAd store",store);
         //          Log.d("NativeAD responseAd advertiser",advertiser);
-        Log.d("NativeAD responseAd headline",headline);
-        Log.d("NativeAD responseAd body",body);
-        Log.d("NativeAD responseAd cta",cta);
+        Log.d("NativeAD responseAd headline", headline);
+        Log.d("NativeAD responseAd body", body);
+        Log.d("NativeAD responseAd cta", cta);
 //                          Log.d("NativeAD responseAd store",store);
         Log.d("NativeAD responseAd starRating", String.valueOf(starRating));
         Log.d("NativeAD responseAd icon", String.valueOf(icon));
 
         String tertiaryText;
         //add this
-        if (nativeAdView == null) {return;}
+        if (nativeAdView == null) {
+            return;
+        }
 
-        nativeAdView.setCallToActionView(callToActionParentView);
-        nativeAdView.setHeadlineView(primaryParentView);
+        nativeAdView.setCallToActionView(buttonLayout);
+        nativeAdView.setHeadlineView(primaryView);
         nativeAdView.setMediaView(mediaView);
 
-        if (adHasOnlyStore(nativeAd)) {
-            nativeAdView.setStoreView(tertiaryView);
-            tertiaryParentView.setVisibility(VISIBLE);
-            tertiaryText = store;
-        } else if (adHasOnlyAdvertiser(nativeAd)) {
-            nativeAdView.setAdvertiserView(tertiaryView);
-            tertiaryParentView.setVisibility(VISIBLE);
+        if (adHasOnlyAdvertiser(nativeAd)) {
             secondaryView.setLines(1);
-            tertiaryText = advertiser;
         } else if (adHasBothStoreAndAdvertiser(nativeAd)) {
-            nativeAdView.setAdvertiserView(tertiaryView);
-            tertiaryParentView.setVisibility(VISIBLE);
             secondaryView.setLines(1);
-            tertiaryText = advertiser;
         } else {
-            tertiaryText = "";
-            tertiaryParentView.setVisibility(GONE);
             secondaryView.setLines(3);
         }
 
         //add this
-        if (nativeAdView == null) {return;}
+        if (nativeAdView == null) {
+            return;
+        }
 
         primaryView.setText(headline);
-        tertiaryView.setText(tertiaryText);
+
         callToActionView.setText(cta);
 
         // Set the secondary view to be the star rating if available.
         // Otherwise fall back to the body text.
         //add this
-        if (nativeAdView == null) {return;}
+        if (nativeAdView == null) {
+            return;
+        }
 
         if (starRating != null && starRating > 0) {
             secondaryView.setVisibility(GONE);
-            ratingBar.setVisibility(VISIBLE);
-            ratingBar.setMax(5);
-            nativeAdView.setStarRatingView(ratingBar);
         } else {
             secondaryView.setText(body);
             secondaryView.setVisibility(VISIBLE);
-            ratingBar.setVisibility(GONE);
             nativeAdView.setBodyView(secondaryView);
         }
 
         //add this
-        if (nativeAdView == null) {return;}
+        if (nativeAdView == null) {
+            return;
+        }
 
         if (icon != null) {
             iconView.setVisibility(VISIBLE);
@@ -291,8 +265,10 @@ class ReactNativeView extends ReactViewGroup {
 
 
         //add this
-        if (nativeAdView == null) {return;}
-        
+        if (nativeAdView == null) {
+            return;
+        }
+
         // This method tells the Google Mobile Ads SDK that you have finished populating your
         // native ad view with this native ad.
         adView.setNativeAd(nativeAd);
@@ -396,7 +372,7 @@ public class RNAdMobNativeViewManager extends ViewGroupManager<ReactNativeView> 
 
     @ReactProp(name = PROP_TEST_DEVICES)
     public void setPropTestDevices(final ReactNativeView view, final ReadableArray testDevices) {
-        ReadableNativeArray nativeArray = (ReadableNativeArray)testDevices;
+        ReadableNativeArray nativeArray = (ReadableNativeArray) testDevices;
         ArrayList<Object> list = nativeArray.toArrayList();
         view.setTestDevices(list.toArray(new String[list.size()]));
     }

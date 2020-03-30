@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-  <solid android:color="#ffffffff"/>
+  <solid />
 
-  <stroke android:width="2dp"
-      android:color="@color/gnt_ad_green"/>
+  <stroke android:width="3dp"
+      android:color="@android:color/holo_green_light"/>
 
-  <padding android:left="1dp"
-      android:top="1dp"
-      android:right="1dp"
-      android:bottom="1dp" />
+  <padding android:left="3dp"
+      android:top="3dp"
+      android:right="3dp"
+      android:bottom="3dp" />
 
-  <corners android:bottomRightRadius="5dp"
-      android:bottomLeftRadius="5dp"
-      android:topLeftRadius="5dp"
-      android:topRightRadius="5dp" />
+  <corners android:bottomRightRadius="15dp"
+      android:bottomLeftRadius="15dp"
+      android:topLeftRadius="15dp"
+      android:topRightRadius="15dp" />
 </shape>
