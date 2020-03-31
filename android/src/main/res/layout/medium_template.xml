@@ -29,8 +29,7 @@
                 android:id="@+id/bottom"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
-                android:layout_weight="0.8"
+                android:layout_margin="0dp"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintBottom_toTopOf="@id/top"
@@ -58,18 +57,17 @@
                         android:background="@drawable/gnt_rounded_corners_shape"
                         android:gravity="center"
                         android:text="S"
+
                         android:textColor="@color/gnt_white"
                         android:textSize="12dp"
                         android:textStyle="bold" />
 
                     <TextView
-
                         android:layout_width="wrap_content"
                         android:layout_height="@dimen/gnt_ad_indicator_height"
                         android:layout_marginStart="@dimen/gnt_default_margin"
                         android:layout_marginTop="@dimen/gnt_ad_indicator_top_margin"
                         android:layout_marginBottom="@dimen/gnt_ad_indicator_top_margin"
-
                         android:gravity="center"
                         android:text="StumblerAds"
                         android:textColor="@color/gnt_white"
@@ -79,30 +77,22 @@
 
                 <com.google.android.gms.ads.formats.MediaView
                     android:id="@+id/media_view"
-                    android:layout_width="@dimen/gnt_no_size"
-                    android:layout_height="@dimen/gnt_no_size"
-                    android:layout_marginTop="30dp"
-                    android:layout_weight="@dimen/gnt_media_view_weight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     app:layout_constraintBottom_toTopOf="@id/cta_parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-
-                    />
+                    app:layout_constraintEnd_toEndOf="@id/cta_parent"
+                    app:layout_constraintStart_toStartOf="parent" />
 
                 <LinearLayout
                     android:id="@+id/cta_parent"
-                    android:layout_width="@dimen/gnt_no_size"
-                    android:layout_height="@dimen/gnt_medium_cta_button_height"
-                    android:layout_marginTop="@dimen/gnt_default_margin"
-                    android:layout_marginBottom="@dimen/gnt_default_margin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:background="@color/gnt_test_background_color_2"
                     android:clickable="false"
                     android:orientation="vertical"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/media_view">
+                    app:layout_constraintStart_toStartOf="parent">
 
                     <View
                         android:layout_width="match_parent"
@@ -125,7 +115,8 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="0.3dp"
-                        android:background="#363636" />
+                        android:background="#363636"
+                        android:layout_marginBottom="5dp"/>
 
 
                 </LinearLayout>
@@ -137,8 +128,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/top"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/gnt_no_size"
-                android:layout_weight="0.1"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -153,7 +143,7 @@
 
                     <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentTop="true"
@@ -161,12 +151,12 @@
 
                         <de.hdodenhof.circleimageview.CircleImageView
                             android:id="@+id/icon"
-                            android:layout_width="70dp"
-                            android:layout_height="60dp"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
                             android:layout_gravity="center"
+                            android:layout_marginLeft="10dp"
 
-                           />
-
+                            />
 
 
                         <TextView
@@ -174,11 +164,12 @@
                             android:layout_width="180dp"
                             android:layout_height="match_parent"
                             android:layout_gravity="center"
-                            android:layout_marginTop="10dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginTop="5dp"
                             android:layout_marginRight="10dp"
                             android:layout_marginBottom="10dp"
                             android:background="#262626"
-                            android:gravity="center"
+                            android:gravity="center_vertical|left"
                             android:text="Native ads Headline"
                             android:textColor="@color/gnt_gray"
                             android:textSize="14sp"
@@ -189,17 +180,17 @@
                     <LinearLayout
                         android:id="@+id/buttonLayout"
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentRight="true"
-                        android:layout_margin="5dp"
+
                         android:orientation="horizontal">
 
                         <Button
                             android:id="@+id/cta"
                             android:layout_width="100dp"
-                            android:layout_height="50dp"
+                            android:layout_height="40dp"
                             android:layout_gravity="center"
                             android:layout_margin="5dp"
                             android:background="@drawable/button"
@@ -217,9 +208,10 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="0.1dp"
-                android:layout_marginBottom="5dp"
-                android:background="@color/gnt_gray" />
+                android:layout_height="0.3dp"
+                android:layout_marginTop="5dp"
+                android:background="#363636"
+                android:layout_marginBottom="5dp"/>
 
         </LinearLayout>
 

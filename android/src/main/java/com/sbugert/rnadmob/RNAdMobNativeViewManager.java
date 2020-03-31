@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -44,6 +45,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.android.gms.ads.formats.NativeAdOptions.NATIVE_MEDIA_ASPECT_RATIO_LANDSCAPE;
+import static com.google.android.gms.ads.formats.NativeAdOptions.NATIVE_MEDIA_ASPECT_RATIO_PORTRAIT;
 
 
 class ReactNativeView extends ReactViewGroup {
@@ -128,6 +132,7 @@ class ReactNativeView extends ReactViewGroup {
 
         NativeAdOptions adOptions = new NativeAdOptions.Builder()
                 .setVideoOptions(videoOptions)
+                .setMediaAspectRatio(NATIVE_MEDIA_ASPECT_RATIO_PORTRAIT)
                 .build();
 
         builder.withNativeAdOptions(adOptions);
@@ -182,6 +187,18 @@ class ReactNativeView extends ReactViewGroup {
         callToActionView = (Button) findViewById(R.id.cta);
         iconView = (ImageView) findViewById(R.id.icon);
         mediaView = (MediaView) findViewById(R.id.media_view);
+        mediaView.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
+            @Override
+            public void onChildViewAdded(View parent, View child) {
+                if (child instanceof ImageView) {
+                    ImageView imageView = (ImageView) child;
+                    imageView.setAdjustViewBounds(true);
+                }
+            }
+
+            @Override
+            public void onChildViewRemoved(View parent, View child) {}
+        });
 
         callToActionParentView = (LinearLayout) findViewById(R.id.cta_parent);
         buttonLayout = (LinearLayout) findViewById(R.id.buttonLayout);
@@ -202,6 +219,7 @@ class ReactNativeView extends ReactViewGroup {
 
 //           Log.d("NativeAD responseAd store",store);
         //          Log.d("NativeAD responseAd advertiser",advertiser);
+        Log.d("NativeAD responseAd headline", String.valueOf(nativeAd));
         Log.d("NativeAD responseAd headline", headline);
         Log.d("NativeAD responseAd body", body);
         Log.d("NativeAD responseAd cta", cta);
@@ -218,6 +236,8 @@ class ReactNativeView extends ReactViewGroup {
         nativeAdView.setCallToActionView(buttonLayout);
         nativeAdView.setHeadlineView(primaryView);
         nativeAdView.setMediaView(mediaView);
+
+
 
         if (adHasOnlyAdvertiser(nativeAd)) {
             secondaryView.setLines(1);
