@@ -57,7 +57,6 @@
                         android:background="@drawable/gnt_rounded_corners_shape"
                         android:gravity="center"
                         android:text="S"
-
                         android:textColor="@color/gnt_white"
                         android:textSize="12dp"
                         android:textStyle="bold" />
@@ -115,8 +114,8 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="0.3dp"
-                        android:background="#363636"
-                        android:layout_marginBottom="5dp"/>
+                        android:layout_marginBottom="5dp"
+                        android:background="#363636" />
 
 
                 </LinearLayout>
@@ -210,8 +209,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="0.3dp"
                 android:layout_marginTop="5dp"
-                android:background="#363636"
-                android:layout_marginBottom="5dp"/>
+                android:layout_marginBottom="5dp"
+                android:background="#363636" />
 
         </LinearLayout>
 

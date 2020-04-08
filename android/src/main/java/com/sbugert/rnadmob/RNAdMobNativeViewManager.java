@@ -1,15 +1,16 @@
 package com.sbugert.rnadmob;
 
 import android.content.Context;
-import android.graphics.Color;
 
 import androidx.annotation.Nullable;
 
+import android.net.Uri;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -36,7 +37,6 @@ import com.google.android.gms.ads.VideoOptions;
 import com.google.android.gms.ads.doubleclick.PublisherAdRequest;
 import com.google.android.gms.ads.formats.MediaView;
 import com.google.android.gms.ads.formats.NativeAdOptions;
-import com.google.android.gms.ads.formats.NativeCustomTemplateAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 import com.google.android.gms.ads.formats.NativeAd.Image;
@@ -46,13 +46,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.android.gms.ads.formats.NativeAdOptions.NATIVE_MEDIA_ASPECT_RATIO_LANDSCAPE;
 import static com.google.android.gms.ads.formats.NativeAdOptions.NATIVE_MEDIA_ASPECT_RATIO_PORTRAIT;
 
 
 class ReactNativeView extends ReactViewGroup {
 
     String adUnitID;
+    String adLoader;
+    String adTitle;
+    String adDescription;
+    String adCallToAction;
+    String adThumbnail;
+    String adPoster;
+    boolean isAd;
     String adSize = "small";
     UnifiedNativeAdView nativeAdView;
 
@@ -74,6 +80,13 @@ class ReactNativeView extends ReactViewGroup {
     private void createAdView() {
         final Context context = getContext();
         Log.d("NativeAD create", this.adUnitID);
+        Log.d("NativeAD create", String.valueOf(this.isAd));
+        Log.d("NativeAD create", String.valueOf(this.adLoader));
+        Log.d("NativeAD create", String.valueOf(this.adTitle));
+        Log.d("NativeAD create", String.valueOf(this.adDescription));
+        Log.d("NativeAD create", String.valueOf(this.adCallToAction));
+        Log.d("NativeAD create", String.valueOf(this.adThumbnail));
+        Log.d("NativeAD create", String.valueOf(this.adPoster));
         AdLoader.Builder builder = new AdLoader.Builder(context, this.adUnitID);
         Log.d("NativeAD builder", String.valueOf(builder));
         builder.forUnifiedNativeAd(new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
@@ -81,7 +94,8 @@ class ReactNativeView extends ReactViewGroup {
             public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAd) {
                 // Show the ad.
                 sendEvent(RNAdMobNativeViewManager.EVENT_AD_LOADED, null);
-                Log.d("NativeAD adload", "native ad");
+                Log.d("NativeAD adload", String.valueOf(unifiedNativeAd.getImages()));
+                Log.d("NativeAD unifNeAd", String.valueOf(unifiedNativeAd));
                 populateUnifiedNativeAdView(unifiedNativeAd, nativeAdView);
                 if (nativeAdView == null) return; // ADD THIS LINE HERE
                 //calculate ad size and layout
@@ -144,6 +158,7 @@ class ReactNativeView extends ReactViewGroup {
         }).build();
 
         adLoader.loadAd(new PublisherAdRequest.Builder().build());
+        // adLoader.loadAds(new AdRequest.Builder().build(), 5);
         LayoutInflater inflater = LayoutInflater.from(context);
         this.nativeAdView = (UnifiedNativeAdView) inflater.inflate(R.layout.medium_template, null);
         this.addView(nativeAdView);
@@ -187,18 +202,7 @@ class ReactNativeView extends ReactViewGroup {
         callToActionView = (Button) findViewById(R.id.cta);
         iconView = (ImageView) findViewById(R.id.icon);
         mediaView = (MediaView) findViewById(R.id.media_view);
-        mediaView.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
-            @Override
-            public void onChildViewAdded(View parent, View child) {
-                if (child instanceof ImageView) {
-                    ImageView imageView = (ImageView) child;
-                    imageView.setAdjustViewBounds(true);
-                }
-            }
 
-            @Override
-            public void onChildViewRemoved(View parent, View child) {}
-        });
 
         callToActionParentView = (LinearLayout) findViewById(R.id.cta_parent);
         buttonLayout = (LinearLayout) findViewById(R.id.buttonLayout);
@@ -225,7 +229,9 @@ class ReactNativeView extends ReactViewGroup {
         Log.d("NativeAD responseAd cta", cta);
 //                          Log.d("NativeAD responseAd store",store);
         Log.d("NativeAD responseAd starRating", String.valueOf(starRating));
-        Log.d("NativeAD responseAd icon", String.valueOf(icon));
+        Log.d("NativeAD responseAd icon", String.valueOf(icon.getUri()));
+        Log.d("NativeAD responseAd images", String.valueOf(nativeAd.getImages()));
+        Log.d("NativeAD responseAd images", String.valueOf(nativeAd.getExtras()));
 
         String tertiaryText;
         //add this
@@ -237,6 +243,40 @@ class ReactNativeView extends ReactViewGroup {
         nativeAdView.setHeadlineView(primaryView);
         nativeAdView.setMediaView(mediaView);
 
+        mediaView.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
+            @Override
+            public void onChildViewAdded(View parent, View child) {
+                if (child instanceof ImageView) {
+                    ImageView imageView = (ImageView) child;
+
+
+                    DisplayMetrics displayMetrics = new DisplayMetrics();
+                    WindowManager windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+                    if (windowManager != null) {
+                        windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+                    }
+
+                    int imageHeight = imageView.getDrawable().getIntrinsicHeight();
+                    int screenHeight = displayMetrics.heightPixels;
+                    Log.d("DISPLAY1 screen", String.valueOf(screenHeight));
+                    Log.d("DISPLAY1 image", String.valueOf(imageHeight));
+                    if (imageHeight > (screenHeight / 2)) {
+                        int newImageHeight = imageHeight - (screenHeight / 7);
+                        imageView.getLayoutParams().height = newImageHeight;
+                        Log.d("DISPLAY1 image change", String.valueOf(newImageHeight));
+
+                    } else {
+                        Log.d("DISPLAY1 no change", String.valueOf(imageHeight));
+                        imageView.setAdjustViewBounds(true);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onChildViewRemoved(View parent, View child) {
+            }
+        });
 
 
         if (adHasOnlyAdvertiser(nativeAd)) {
@@ -252,9 +292,9 @@ class ReactNativeView extends ReactViewGroup {
             return;
         }
 
-        primaryView.setText(headline);
+        primaryView.setText(this.adTitle);
 
-        callToActionView.setText(cta);
+        callToActionView.setText(this.adCallToAction);
 
         // Set the secondary view to be the star rating if available.
         // Otherwise fall back to the body text.
@@ -266,7 +306,7 @@ class ReactNativeView extends ReactViewGroup {
         if (starRating != null && starRating > 0) {
             secondaryView.setVisibility(GONE);
         } else {
-            secondaryView.setText(body);
+            secondaryView.setText(this.adDescription);
             secondaryView.setVisibility(VISIBLE);
             nativeAdView.setBodyView(secondaryView);
         }
@@ -278,7 +318,8 @@ class ReactNativeView extends ReactViewGroup {
 
         if (icon != null) {
             iconView.setVisibility(VISIBLE);
-            iconView.setImageDrawable(icon.getDrawable());
+//            iconView.setImageDrawable(icon.getDrawable());
+            iconView.setImageURI(Uri.parse(this.adThumbnail));
         } else {
             iconView.setVisibility(GONE);
         }
@@ -306,12 +347,52 @@ class ReactNativeView extends ReactViewGroup {
                 event);
     }
 
+    public int dpToPx(int dp) {
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        return Math.round(120 * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    }
+
     public void loadNativeAd(String adUnitID) {
         this.createAdView();
     }
 
+    public String getResponseFromAdmob() {
+        Log.d("getResponseFromsServer", "triggred");
+        String s = "custom methid";
+        return "hello";
+    }
+
+
     public void setAdUnitID(String adUnitID) {
         this.adUnitID = adUnitID;
+    }
+
+    public void setAdPresent(boolean isAd) {
+        this.isAd = isAd;
+    }
+
+    public void setadLoaderPresent(String adLoader) {
+        this.adLoader = adLoader;
+    }
+
+    public void setadTitlePresent(String adTitle) {
+        this.adTitle = adTitle;
+    }
+
+    public void setadDescriptionPresent(String adDescription) {
+        this.adDescription = adDescription;
+    }
+
+    public void setadCallToActionPresent(String adCallToAction) {
+        this.adCallToAction = adCallToAction;
+    }
+
+    public void setadThumbnailPresent(String adThumbnail) {
+        this.adThumbnail = adThumbnail;
+    }
+
+    public void setadPosterPresent(String adPoster) {
+        this.adPoster = adPoster;
     }
 
     public void setAdSize(String adSize) {
@@ -332,6 +413,13 @@ public class RNAdMobNativeViewManager extends ViewGroupManager<ReactNativeView> 
 
     //public static final String PROP_AD_SIZE = "adSize";
     public static final String PROP_AD_UNIT_ID = "adUnitID";
+    public static final String PROP_AD_PRESET = "isAd";
+    public static final String PROP_AD_LOADER = "adLoader";
+    public static final String PROP_AD_TITLE = "adTitle";
+    public static final String PROP_AD_DESCRIPTION = "adDescription";
+    public static final String PROP_AD_CALLTOACTION = "adCallToAction";
+    public static final String PROP_AD_THUMBNAIL = "adThumbnail";
+    public static final String PROP_AD_POSTER = "adPoster";
     public static final String PROP_AD_SIZE = "adSize";
     public static final String PROP_TEST_DEVICES = "testDevices";
 
@@ -344,6 +432,7 @@ public class RNAdMobNativeViewManager extends ViewGroupManager<ReactNativeView> 
     public static final String EVENT_AD_LEFT_APPLICATION = "onAdLeftApplication";
 
     public static final int COMMAND_LOAD_NATIVE = 1;
+    public static final int COMMAND_GET_RESPONSE = 2;
 
     @Override
     public String getName() {
@@ -380,6 +469,41 @@ public class RNAdMobNativeViewManager extends ViewGroupManager<ReactNativeView> 
         return builder.build();
     }
 
+    @ReactProp(name = PROP_AD_PRESET)
+    public void setPropAdPresent(final ReactNativeView view, final boolean isAd) {
+        view.setAdPresent(isAd);
+    }
+
+    @ReactProp(name = PROP_AD_LOADER)
+    public void setPropAdLoaderPresent(final ReactNativeView view, final String adLoader) {
+        view.setadLoaderPresent(adLoader);
+    }
+
+    @ReactProp(name = PROP_AD_TITLE)
+    public void setPropAdTitle(final ReactNativeView view, final String adTitle) {
+        view.setadTitlePresent(adTitle);
+    }
+
+    @ReactProp(name = PROP_AD_DESCRIPTION)
+    public void setPropAdDescription(final ReactNativeView view, final String adDescription) {
+        view.setadDescriptionPresent(adDescription);
+    }
+
+    @ReactProp(name = PROP_AD_CALLTOACTION)
+    public void setPropAdCalltoaction(final ReactNativeView view, final String adCallToAction) {
+        view.setadCallToActionPresent(adCallToAction);
+    }
+
+    @ReactProp(name = PROP_AD_THUMBNAIL)
+    public void setPropAdThumbnail(final ReactNativeView view, final String adThumbnail) {
+        view.setadThumbnailPresent(adThumbnail);
+    }
+
+    @ReactProp(name = PROP_AD_POSTER)
+    public void setPropAdPoster(final ReactNativeView view, final String adPoster) {
+        view.setadPosterPresent(adPoster);
+    }
+
     @ReactProp(name = PROP_AD_UNIT_ID)
     public void setPropAdUnitID(final ReactNativeView view, final String adUnitID) {
         view.setAdUnitID(adUnitID);
@@ -401,15 +525,20 @@ public class RNAdMobNativeViewManager extends ViewGroupManager<ReactNativeView> 
     @Override
     public Map<String, Integer> getCommandsMap() {
         return MapBuilder.of("loadNativeAd", COMMAND_LOAD_NATIVE);
+
     }
 
     @Override
     public void receiveCommand(ReactNativeView root, int commandId, @javax.annotation.Nullable ReadableArray args) {
-        switch (commandId) {
-            case COMMAND_LOAD_NATIVE:
-                root.loadNativeAd(args.getString(0));
-                break;
+        if (commandId == COMMAND_LOAD_NATIVE) {
+            Log.d("getResponseFromsServer", " case triggred");
+            root.loadNativeAd(args.getString(0));
+        } else {
+            Log.d("getResponseFromsServer", "case 2 triggred");
+            root.getResponseFromAdmob();
         }
+
     }
 }
+
 

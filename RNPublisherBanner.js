@@ -8,11 +8,9 @@ import {
 } from 'react-native';
 import { createErrorFromErrorData } from './utils';
 
-class PublisherBanner extends Component {
+class RNAdMobNative extends Component {
   constructor() {
     super();
-    this.handleSizeChange = this.handleSizeChange.bind(this);
-    this.handleAppEvent = this.handleAppEvent.bind(this);
     this.handleAdFailedToLoad = this.handleAdFailedToLoad.bind(this);
     this.state = {
       style: {},
@@ -20,30 +18,26 @@ class PublisherBanner extends Component {
   }
 
   componentDidMount() {
-    this.loadBanner();
+    const { adUnitID, adLoader, adTitle, adDescription, adCallToAction, adThumbnail, adPoster } = this.props;
+    if (adUnitID) {
+      this.getResponseFromsServer()
+      return this.loadNativeAd(adUnitID, adLoader, adTitle, adDescription, adCallToAction, adThumbnail, adPoster);
+    }
+    console.warn('Attempted to load native ad without ad unit id');
+
   }
 
-  loadBanner() {
+  getResponseFromsServer = async () => {
+    let data = await UIManager.dispatchViewManagerCommand(findNodeHandle(this._nativeView), 2, null);
+    console.debug('getResponseFromsServer data', data)
+  }
+
+  loadNativeAd(adUnitId, adLoader, adTitle, adDescription, adCallToAction, adThumbnail, adPoster) {
     UIManager.dispatchViewManagerCommand(
-      findNodeHandle(this._bannerView),
-      UIManager.getViewManagerConfig('RNDFPBannerView').Commands.loadBanner,
-      null
+      findNodeHandle(this._nativeView),
+      1,
+      [adUnitId, adLoader, adTitle, adDescription, adCallToAction, adThumbnail, adPoster]
     );
-  }
-
-  handleSizeChange(event) {
-    const { height, width } = event.nativeEvent;
-    this.setState({ style: { width, height } });
-    if (this.props.onSizeChange) {
-      this.props.onSizeChange({ width, height });
-    }
-  }
-
-  handleAppEvent(event) {
-    if (this.props.onAppEvent) {
-      const { name, info } = event.nativeEvent;
-      this.props.onAppEvent({ name, info });
-    }
   }
 
   handleAdFailedToLoad(event) {
@@ -54,71 +48,70 @@ class PublisherBanner extends Component {
     }
   }
 
+  setRef = (el) => (this._nativeView = el);
+
   render() {
     return (
-      <RNDFPBannerView
+      <RNGADNativeView
         {...this.props}
         style={[this.props.style, this.state.style]}
-        onSizeChange={this.handleSizeChange}
         onAdFailedToLoad={this.handleAdFailedToLoad}
-        onAppEvent={this.handleAppEvent}
-        ref={(el) => (this._bannerView = el)}
+        ref={this.setRef}
       />
     );
   }
 }
 
-PublisherBanner.simulatorId = 'SIMULATOR';
+RNAdMobNative.simulatorId = 'SIMULATOR';
 
-PublisherBanner.propTypes = {
+RNAdMobNative.propTypes = {
   ...ViewPropTypes,
 
   /**
-   * DFP iOS library banner size constants
-   * (https://developers.google.com/admob/ios/banner)
-   * banner (320x50, Standard Banner for Phones and Tablets)
-   * largeBanner (320x100, Large Banner for Phones and Tablets)
-   * mediumRectangle (300x250, IAB Medium Rectangle for Phones and Tablets)
-   * fullBanner (468x60, IAB Full-Size Banner for Tablets)
-   * leaderboard (728x90, IAB Leaderboard for Tablets)
-   * smartBannerPortrait (Screen width x 32|50|90, Smart Banner for Phones and Tablets)
-   * smartBannerLandscape (Screen width x 32|50|90, Smart Banner for Phones and Tablets)
+   * Google AdMob templates are being used to display native ads
+   * (https://developers.google.com/admob/ios/native/templates)
+   * Two sizes are available; medium and small
    *
-   * banner is default
+   * small is default
    */
   adSize: string,
 
-  /**
-   * Optional array specifying all valid sizes that are appropriate for this slot.
-   */
-  validAdSizes: arrayOf(string),
+  isAd: Boolean,
+  adTitle: string,
+  adDescription: string,
+  adCallToAction: string,
+  adThumbnail: string,
+  adPoster: string,
 
   /**
-   * DFP ad unit ID
+   * AdMob ad unit ID
    */
   adUnitID: string,
+  adLoader: string,
 
   /**
-   * Array of test devices. Use PublisherBanner.simulatorId for the simulator
+   * Array of test devices. Use AdMobBanner.simulatorId for the simulator
    */
   testDevices: arrayOf(string),
 
-  onSizeChange: func,
-
   /**
-   * DFP library events
+   * GADUnifiedNativeAdDelegate lifecycle methods
+   * https://developers.google.com/ad-manager/mobile-ads-sdk/ios/api/reference/Protocols/GADUnifiedNativeAdDelegate
    */
-  onAdLoaded: func,
-  onAdFailedToLoad: func,
   onAdOpened: func,
   onAdClosed: func,
   onAdLeftApplication: func,
-  onAppEvent: func,
+  didRecordImpression: func,
+  didRecordClick: func,
+
+  /**
+   * GADUnifiedNativeAdLoaderDelegate
+   * https://developers.google.com/ad-manager/mobile-ads-sdk/ios/api/reference/Protocols/GADUnifiedNativeAdLoaderDelegate
+   */
+  onAdLoaded: func,
+  onAdFailedToLoad: func,
 };
 
-const RNDFPBannerView = requireNativeComponent(
-  'RNDFPBannerView',
-  PublisherBanner
-);
+const RNGADNativeView = requireNativeComponent('RNGADNativeView', RNAdMobNative);
 
-export default PublisherBanner;
+export default RNAdMobNative;
