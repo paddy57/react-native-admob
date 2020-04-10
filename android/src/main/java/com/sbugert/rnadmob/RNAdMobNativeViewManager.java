@@ -139,6 +139,30 @@ class ReactNativeView extends ReactViewGroup {
         AdLoader adLoader = builder.withAdListener(new AdListener() {
             @Override
             public void onAdFailedToLoad(int errorCode) {
+                // Handle the failure by logging, altering the UI, and so on.
+                String errorMessage = "Unknown error";
+                Log.d("NativeAD ERROR", String.valueOf(errorCode));
+                Log.d("NativeAD ERROR2", "error");
+                switch (errorCode) {
+                    case AdRequest.ERROR_CODE_INTERNAL_ERROR:
+                        errorMessage = "Internal error, an invalid response was received from the ad server.";
+                        break;
+                    case AdRequest.ERROR_CODE_INVALID_REQUEST:
+                        errorMessage = "Invalid ad request, possibly an incorrect ad unit ID was given.";
+                        break;
+                    case AdRequest.ERROR_CODE_NETWORK_ERROR:
+                        errorMessage = "The ad request was unsuccessful due to network connectivity.";
+                        break;
+                    case AdRequest.ERROR_CODE_NO_FILL:
+                        errorMessage = "The ad request was successful, but no ad was returned due to lack of ad inventory.";
+                        break;
+                }
+                WritableMap event = Arguments.createMap();
+                WritableMap error = Arguments.createMap();
+                Log.d("NativeAD ERROR", errorMessage);
+                error.putString("message", errorMessage);
+                event.putMap("error", error);
+                sendEvent(RNAdMobNativeViewManager.EVENT_AD_FAILED_TO_LOAD, event);
             }
         }).build();
 
@@ -206,17 +230,7 @@ class ReactNativeView extends ReactViewGroup {
         Double starRating = nativeAd.getStarRating();
         Image icon = nativeAd.getIcon();
 
-//           Log.d("NativeAD responseAd store",store);
-        //          Log.d("NativeAD responseAd advertiser",advertiser);
-        Log.d("NativeAD responseAd headline", String.valueOf(nativeAd));
         Log.d("NativeAD responseAd headline", headline);
-        Log.d("NativeAD responseAd body", body);
-        Log.d("NativeAD responseAd cta", cta);
-//                          Log.d("NativeAD responseAd store",store);
-        Log.d("NativeAD responseAd starRating", String.valueOf(starRating));
-        Log.d("NativeAD responseAd icon", String.valueOf(icon.getUri()));
-        Log.d("NativeAD responseAd images", String.valueOf(nativeAd.getImages()));
-        Log.d("NativeAD responseAd images", String.valueOf(nativeAd.getExtras()));
 
         String tertiaryText;
         //add this
@@ -233,8 +247,6 @@ class ReactNativeView extends ReactViewGroup {
             public void onChildViewAdded(View parent, View child) {
                 if (child instanceof ImageView) {
                     ImageView imageView = (ImageView) child;
-
-
                     DisplayMetrics displayMetrics = new DisplayMetrics();
                     WindowManager windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
                     if (windowManager != null) {
@@ -242,11 +254,13 @@ class ReactNativeView extends ReactViewGroup {
                     }
 
                     int imageHeight = imageView.getDrawable().getIntrinsicHeight();
+                    int imageScale = imageView.getMaxHeight();
                     int screenHeight = displayMetrics.heightPixels;
                     Log.d("DISPLAY1 screen", String.valueOf(screenHeight));
                     Log.d("DISPLAY1 image", String.valueOf(imageHeight));
+                    Log.d("DISPLAY1 imageScale", String.valueOf(imageScale));
                     if (imageHeight > (screenHeight / 2)) {
-                        int newImageHeight = imageHeight - (screenHeight / 7);
+                        int newImageHeight = screenHeight - (screenHeight / 4);
                         imageView.getLayoutParams().height = newImageHeight;
                         Log.d("DISPLAY1 image change", String.valueOf(newImageHeight));
 
@@ -331,21 +345,9 @@ class ReactNativeView extends ReactViewGroup {
                 event);
     }
 
-    public int dpToPx(int dp) {
-        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-        return Math.round(120 * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-    }
-
     public void loadNativeAd(String adUnitID) {
         this.createAdView();
     }
-
-    public String getResponseFromAdmob() {
-        Log.d("getResponseFromsServer", "triggred");
-        String s = "custom methid";
-        return "hello";
-    }
-
 
     public void setAdUnitID(String adUnitID) {
         this.adUnitID = adUnitID;
@@ -381,7 +383,7 @@ public class RNAdMobNativeViewManager extends ViewGroupManager<ReactNativeView> 
     public static final String EVENT_AD_LEFT_APPLICATION = "onAdLeftApplication";
 
     public static final int COMMAND_LOAD_NATIVE = 1;
-    public static final int COMMAND_GET_RESPONSE = 2;
+
 
     @Override
     public String getName() {
@@ -444,14 +446,11 @@ public class RNAdMobNativeViewManager extends ViewGroupManager<ReactNativeView> 
 
     @Override
     public void receiveCommand(ReactNativeView root, int commandId, @javax.annotation.Nullable ReadableArray args) {
-        if (commandId == COMMAND_LOAD_NATIVE) {
-            Log.d("getResponseFromsServer", " case triggred");
-            root.loadNativeAd(args.getString(0));
-        } else {
-            Log.d("getResponseFromsServer", "case 2 triggred");
-            root.getResponseFromAdmob();
+        switch (commandId) {
+            case COMMAND_LOAD_NATIVE:
+                root.loadNativeAd(args.getString(0));
+                break;
         }
-
     }
 }
 
