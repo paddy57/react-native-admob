@@ -1,4 +1,4 @@
-import { arrayOf, func, string } from 'prop-types';
+import { arrayOf, func, string, number } from 'prop-types';
 import React, { Component } from 'react';
 import {
   findNodeHandle,
@@ -18,18 +18,19 @@ class RNAdMobNative extends Component {
   }
 
   componentDidMount() {
-    const { adUnitID } = this.props;
+    const { adUnitID, navBarHeight } = this.props;
+    console.debug("NativeAd dd",adUnitID )
     if (adUnitID) {
-      return this.loadNativeAd(adUnitID);
+      return this.loadNativeAd(adUnitID , navBarHeight);
     }
     console.warn('Attempted to load native ad without ad unit id');
   }
 
-  loadNativeAd(adUnitId) {
+  loadNativeAd(adUnitId, navBarHeight) {
     UIManager.dispatchViewManagerCommand(
       findNodeHandle(this._nativeView),
       UIManager.getViewManagerConfig('RNGADNativeView').Commands.loadNativeAd,
-      [adUnitId]
+      [adUnitId, navBarHeight]
     );
   }
 
@@ -68,6 +69,7 @@ RNAdMobNative.propTypes = {
    * small is default
    */
   adSize: string,
+  navBarHeight: string, 
 
   /**
    * AdMob ad unit ID
