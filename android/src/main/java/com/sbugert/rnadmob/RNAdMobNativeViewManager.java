@@ -9,6 +9,7 @@ import android.content.res.Resources;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Choreographer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +55,61 @@ import static com.google.android.gms.ads.formats.NativeAdOptions.NATIVE_MEDIA_AS
 
 class ReactNativeView extends ReactViewGroup {
 
+
+    Context mContext;
+    MediaView mediaView;
+
+    private final Runnable measureAndLayout = new Runnable() {
+        @Override
+        public void run() {
+            measure(
+                    MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(getHeight(), MeasureSpec.EXACTLY));
+            layout(getLeft(), getTop(), getRight(), getBottom());
+        }
+    };
+    public ReactNativeView(Context context) {
+        super(context);
+        mContext = context;
+        createMediaView(context);
+    }
+
+    public void createMediaView(Context context) {
+
+        mediaView = new MediaView(context);
+        addView(mediaView);
+        setupLayoutHack();
+
+    }
+
+    @Override
+    public void requestLayout() {
+        super.requestLayout();
+        post(measureAndLayout);
+    }
+
+
+    void setupLayoutHack() {
+
+        Choreographer.getInstance().postFrameCallback(new Choreographer.FrameCallback() {
+            @Override
+            public void doFrame(long frameTimeNanos) {
+                manuallyLayoutChildren();
+                getViewTreeObserver().dispatchOnGlobalLayout();
+                Choreographer.getInstance().postFrameCallback(this);
+            }
+        });
+    }
+
+    void manuallyLayoutChildren() {
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            child.measure(MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(getMeasuredHeight(), MeasureSpec.EXACTLY));
+            child.layout(0, 0, child.getMeasuredWidth(), child.getMeasuredHeight());
+        }
+    }
+
     String adUnitID;
     String navBarHeight;
     String adSize = "small";
@@ -65,7 +121,7 @@ class ReactNativeView extends ReactViewGroup {
     private LinearLayout buttonLayout;
 
     private ImageView iconView;
-    private MediaView mediaView;
+   // private MediaView mediaView;
     private LinearLayout callToActionParentView;
     private Button callToActionView;
     private LinearLayout background;
@@ -73,9 +129,9 @@ class ReactNativeView extends ReactViewGroup {
     private LinearLayout adbarTextLayout;
    // private TextView advSize;
 
-    public ReactNativeView(final Context context) {
-        super(context);
-    }
+//    public ReactNativeView(final Context context) {
+//        super(context);
+//    }
 
     private void createAdView() {
         final Context context = getContext();
@@ -273,7 +329,7 @@ class ReactNativeView extends ReactViewGroup {
 //            secondaryView.setLines(3);
 //        }
 
-        secondaryView.setLines(3);
+//        secondaryView.setLines(3);
 
         //add this
         if (nativeAdView == null) {
@@ -474,6 +530,10 @@ public class RNAdMobNativeViewManager extends ViewGroupManager<ReactNativeView> 
 
     public static final int COMMAND_LOAD_NATIVE = 1;
 
+   // private static final String REACT_CLASS = "MediaView";
+    private  ReactNativeView mediaView;
+
+
 
     @Override
     public String getName() {
@@ -481,10 +541,18 @@ public class RNAdMobNativeViewManager extends ViewGroupManager<ReactNativeView> 
     }
 
     @Override
-    protected ReactNativeView createViewInstance(ThemedReactContext themedReactContext) {
-        ReactNativeView adView = new ReactNativeView(themedReactContext);
-        return adView;
+    protected ReactNativeView createViewInstance(ThemedReactContext reactContext) {
+
+        mediaView = new ReactNativeView(reactContext);
+
+        return mediaView;
     }
+
+//    @Override
+//    protected ReactNativeView createViewInstance(ThemedReactContext themedReactContext) {
+//        ReactNativeView adView = new ReactNativeView(themedReactContext);
+//        return adView;
+//    }
 
     @Override
     public void addView(ReactNativeView parent, View child, int index) {
