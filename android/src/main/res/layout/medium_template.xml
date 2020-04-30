@@ -77,7 +77,7 @@
                 <com.google.android.gms.ads.formats.MediaView
                     android:id="@+id/media_view"
                     android:layout_width="match_parent"
-                    android:layout_height="350dp"
+                    android:layout_height="wrap_content"
                     app:layout_constraintBottom_toTopOf="@id/cta_parent"
                     app:layout_constraintEnd_toEndOf="@id/cta_parent"
                     app:layout_constraintStart_toStartOf="parent" />
